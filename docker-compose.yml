@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  orchestrator:
+    build: ./orchestrator
+    ports:
+      - "8080:8080"
+    environment:
+      STORAGE_BACKEND: redis
+      AGENT_LIFECYCLE: "5m"
+    volumes:
+      - agent_logs:/var/orchestrus/logs
+
+  worker:
+    build: ./worker
+    depends_on:
+      orchestrator:
+        condition: service_healthy
+    environment:
+      MAX_CONTAINERS: 4
+
+volumes:
+  agent_logs:
