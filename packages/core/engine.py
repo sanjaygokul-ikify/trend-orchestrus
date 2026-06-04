@@ -11,6 +11,8 @@ class AgentGraph:
         self.logger: Logger = logging.getLogger(__name__)
 
     def add_node(self, node_id: str, llm: VertexAI, resources: Dict[str, str]) -> None:
+        if node_id in self.graph:
+            self.logger.warning(f"Node {node_id} already exists in the graph")
         self.graph[node_id] = [llm]
         self.logger.info(f"Added node {node_id} with resources {resources}")
 
