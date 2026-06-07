@@ -11,3 +11,10 @@ class OrchestrationError(OrchestrusError):
 
     def __init__(self, message: str):
         super().__init__(message)
+
+
+class NodeExecutorError(OrchestrusError):
+    """Raised when there is an error during node execution."""
+
+    def __init__(self, message: str):
+        super().__init__(message)
