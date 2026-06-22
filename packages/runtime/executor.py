@@ -30,3 +30,16 @@ class NodeExecutor:
         except OrchestrationError as e:
             self.timeout_handler(node_id)
             raise e
+
+        # Add a timeout mechanism to prevent indefinite execution
+        import signal
+        def timeout_handler(signum, frame):
+            raise TimeoutError()
+        signal.signal(signal.SIGALRM, timeout_handler)
+        signal.alarm(self.timeout)
+        try:
+            self.execute(node_id)
+        except TimeoutError:
+            self.timeout_handler(node_id)
+        finally:
+            signal.alarm(0)
