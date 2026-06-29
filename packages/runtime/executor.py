@@ -2,7 +2,8 @@ from typing import Dict
 import logging
 from logging import Logger
 from ..core.exceptions import OrchestrationError
-
+import signal
+import time
 
 class NodeExecutor:
     def __init__(self):
@@ -26,20 +27,13 @@ class NodeExecutor:
         if timeout is not None:
             self.timeout = timeout
         try:
+            signal.alarm(self.timeout)
             self.execute(node_id)
+        except signal.SIGALRM:
+            self.logger.warning(f"Node {node_id} timed out")
+            self.timeout_handler(node_id)
         except OrchestrationError as e:
             self.timeout_handler(node_id)
             raise e
-
-        # Add a timeout mechanism to prevent indefinite execution
-        import signal
-        def timeout_handler(signum, frame):
-            raise TimeoutError()
-        signal.signal(signal.SIGALRM, timeout_handler)
-        signal.alarm(self.timeout)
-        try:
-            self.execute(node_id)
-        except TimeoutError:
-            self.timeout_handler(node_id)
         finally:
             signal.alarm(0)
